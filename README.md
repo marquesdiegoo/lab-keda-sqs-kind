@@ -39,7 +39,7 @@ Docker precisa estar rodando.
 Crie o cluster:
 
 ```bash
-kind create cluster --name crossplane-lab
+kind create cluster --name keda-lab
 ```
 
 Suba o LocalStack:
@@ -182,16 +182,6 @@ spec:
               value: us-east-1
 ```
 
-### ServiceAccount para KEDA (caso necessário):
-
-```yaml
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: keda-operator
-  namespace: keda
-```
-
 ### Secret com credenciais AWS (fictícia):
 
 ```yaml
@@ -225,7 +215,7 @@ spec:
         queueURL: http://host.docker.internal:4566/000000000000/minha-fila
         queueLength: "1" #Quantidade de mensagens que cada POD vai consumir por vez 
         awsRegion: "us-east-1"
-        awsEndpoint: http://host.docker.internal:4566
+        awsEndpoint: http://host.docker.internal:4566  #É endereço interno no docker
       authenticationRef:
         name: keda-aws-auth
 ---
@@ -273,10 +263,38 @@ chamod +x enviar-mensagens.sh
 ./enviar-mensagens.sh
 ```
 
+Script rodando: 
+
+![alt text](image-1.png)
+
+Log LocalSatck file de mensagens:
+
+![alt text](image.png)
+
 3. Veja o `pod` sendo escalado com:
 
 ```bash
 kubectl get pods -w
+```
+
+Tela mostrando os Pods que o Keda subiu para consumir as mensagens:
+
+![alt text](image-2.png)
+
+
+Mostra depois terminando os pods
+
+![alt text](image-3.png)
+
+---
+
+## 🧼 Cleanup
+
+```bash
+kind delete cluster --name keda-lab
+```
+```bash
+localstack stop
 ```
 
 ---
@@ -287,4 +305,3 @@ kubectl get pods -w
 * Quando houver mensagens → KEDA escala o pod automaticamente.
 * O consumer lê e apaga a mensagem.
 
----
