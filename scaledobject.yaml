@@ -1,0 +1,33 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: sqs-scaledobject
+spec:
+  scaleTargetRef:
+    name: sqs-consumer
+  pollingInterval: 30
+  cooldownPeriod: 5
+  minReplicaCount: 0
+  maxReplicaCount: 10
+  triggers:
+    - type: aws-sqs-queue
+      metadata:
+        queueURL: http://host.docker.internal:4566/000000000000/minha-fila
+        queueLength: "1"
+        awsRegion: "us-east-1"
+        awsEndpoint: http://host.docker.internal:4566
+      authenticationRef:
+        name: keda-aws-auth
+---
+apiVersion: keda.sh/v1alpha1
+kind: TriggerAuthentication
+metadata:
+  name: keda-aws-auth
+spec:
+  secretTargetRef:
+    - parameter: awsAccessKeyID
+      name: aws-secrets
+      key: AWS_ACCESS_KEY_ID
+    - parameter: awsSecretAccessKey
+      name: aws-secrets
+      key: AWS_SECRET_ACCESS_KEY

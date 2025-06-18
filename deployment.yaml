@@ -1,0 +1,26 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: sqs-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: sqs-consumer
+  template:
+    metadata:
+      labels:
+        app: sqs-consumer
+    spec:
+      containers:
+        - name: consumer
+          image: sqs-consumer:v1
+          env:
+            - name: QUEUE_URL
+              value: http://host.docker.internal:4566/000000000000/minha-fila
+            - name: AWS_ACCESS_KEY_ID
+              value: test
+            - name: AWS_SECRET_ACCESS_KEY
+              value: test
+            - name: AWS_DEFAULT_REGION
+              value: us-east-1
